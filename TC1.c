@@ -18,7 +18,7 @@ int pid;
 */
 int main(int argc, char* argv){
     srand(time(NULL));
-
+    
     process_ptr test_process[10];
 
     for(int i=0; i<PROC_NUM; i++){
@@ -42,5 +42,5 @@ int main(int argc, char* argv){
     for(int i=0; i<PROC_NUM; i++){
         free(test_process[i]);
     }
-
+    
 }

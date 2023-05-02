@@ -1,11 +1,16 @@
+#ifndef PROCESS
+#define PROCESS
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
-#define PROC_NUM 10
+#define PROC_NUM 4
 #define MAX_ARRIVAL 5
 #define MAX_BURST 5
 #define MAX_PRIORITY 10
+#define TRUE 1
+#define FALSE 0
 
 typedef struct process
 {   ///////////Project 요구사항///////
@@ -26,8 +31,15 @@ typedef struct process
 
 typedef process* process_ptr;
 
+/*
+    Initialize process with random values
+    [in]process_addr
+    [in]pid
+
+    [out]iniialized process's address
+*/
 process_ptr process_init(process_ptr process_addr, int pid){
-    process_addr = malloc(sizeof(process));
+    process_addr = (process_ptr)malloc(sizeof(process));
     process_addr->pid = pid;
     process_addr->arrival_time = (rand() % MAX_ARRIVAL) + 1;
     process_addr->cpu_burst_time = (rand() % MAX_BURST) + 1;
@@ -39,4 +51,4 @@ process_ptr process_init(process_ptr process_addr, int pid){
     process_addr->is_end = 0;
     return process_addr;
 }
-
+#endif
