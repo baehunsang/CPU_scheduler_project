@@ -22,7 +22,7 @@ cpu_scheduler_ptr Config(cpu_scheduler_ptr cpu_scheduler_addr){
 }
 
 /*
-    create and insert processes
+    create and insert processes to job queue.
 */
 cpu_scheduler_ptr Create_process(cpu_scheduler_ptr cpu_scheduler_addr){
     for(int i=0; i<PROC_NUM; i++){
@@ -32,6 +32,9 @@ cpu_scheduler_ptr Create_process(cpu_scheduler_ptr cpu_scheduler_addr){
     return cpu_scheduler_addr;
 }
 
+/*
+    return allocated memory
+*/
 void distroy_scheduler(cpu_scheduler_ptr cpu_scheduler_addr){
     for(int i=0; i< PROC_NUM; i++){
         free(cpu_scheduler_addr->trace_process[i]);
