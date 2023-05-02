@@ -41,6 +41,8 @@ int parent(int index) {
     process compare function
     1 if process1's priority is bigger than process2
     else 0
+    high priority value has high priority
+    sort with arrival time
 */
 int compare(process_ptr process1, process_ptr process2){
     if(process1->arrival_time < process2->arrival_time){
