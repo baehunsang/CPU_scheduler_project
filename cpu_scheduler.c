@@ -38,4 +38,9 @@ int main(int argc, char* argv){
         printf("process is_end: %d\n", test_process[i]->is_end);
         printf("\n");
     }
+
+    for(int i=0; i<PROC_NUM; i++){
+        free(test_process[i]);
+    }
+
 }
