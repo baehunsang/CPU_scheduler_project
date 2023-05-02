@@ -26,16 +26,17 @@ typedef struct process
 
 typedef process* process_ptr;
 
-process_ptr process_init(process_ptr process, int pid){
-    process->pid = pid;
-    process->arrival_time = (rand() % MAX_ARRIVAL) + 1;
-    process->cpu_burst_time = (rand() % MAX_BURST) + 1;
-    process->io_start_time = (rand() % (process->cpu_burst_time)) + 1;
-    process->io_burst_time = (rand() % MAX_BURST) + 1;
-    process->priority = (rand() % MAX_PRIORITY);
-    process->remaining_cpu_time = process->cpu_burst_time;
-    process->remaining_io_time = process->io_burst_time;
-    process->is_end = 0;
-    return process;
+process_ptr process_init(process_ptr process_addr, int pid){
+    process_addr = malloc(sizeof(process));
+    process_addr->pid = pid;
+    process_addr->arrival_time = (rand() % MAX_ARRIVAL) + 1;
+    process_addr->cpu_burst_time = (rand() % MAX_BURST) + 1;
+    process_addr->io_start_time = (rand() % (process_addr->cpu_burst_time)) + 1;
+    process_addr->io_burst_time = (rand() % MAX_BURST) + 1;
+    process_addr->priority = (rand() % MAX_PRIORITY);
+    process_addr->remaining_cpu_time = process_addr->cpu_burst_time;
+    process_addr->remaining_io_time = process_addr->io_burst_time;
+    process_addr->is_end = 0;
+    return process_addr;
 }
 
