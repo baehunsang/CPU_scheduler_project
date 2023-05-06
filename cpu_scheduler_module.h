@@ -3,11 +3,13 @@
 #include <time.h>
 #include "./process.h"
 #include "./definition_job_queue.h"
+#include "./definition_ready_Q.h"
 
 typedef struct cpu_scheduler
 {
     process_ptr trace_process[PROC_NUM];
     jq_ptr job_queue;
+    rq_ptr ready_queue;
 }cpu_scheduler;
 
 typedef cpu_scheduler* cpu_scheduler_ptr;
@@ -18,6 +20,7 @@ typedef cpu_scheduler* cpu_scheduler_ptr;
 cpu_scheduler_ptr Config(cpu_scheduler_ptr cpu_scheduler_addr){
     cpu_scheduler_addr = (cpu_scheduler_ptr)malloc(sizeof(cpu_scheduler));
     cpu_scheduler_addr->job_queue = init_jq(cpu_scheduler_addr->job_queue);
+    cpu_scheduler_addr->ready_queue = init_rq(cpu_scheduler_addr->ready_queue);
     return cpu_scheduler_addr;
 }
 
@@ -40,5 +43,6 @@ void distroy_scheduler(cpu_scheduler_ptr cpu_scheduler_addr){
         free(cpu_scheduler_addr->trace_process[i]);
     }
     free(cpu_scheduler_addr->job_queue);
+    free(cpu_scheduler_addr->ready_queue);
     free(cpu_scheduler_addr);
 }
