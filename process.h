@@ -25,6 +25,8 @@ typedef struct process
     //////////추가 속성//////////
     int remaining_cpu_time;
     int remaining_io_time;
+    int io_timer;
+    int is_io;
     int is_end;
     ////////////////////////////
 }process;
@@ -41,14 +43,25 @@ typedef process* process_ptr;
 process_ptr process_init(process_ptr process_addr, int pid){
     process_addr = (process_ptr)malloc(sizeof(process));
     process_addr->pid = pid;
-    process_addr->arrival_time = (rand() % MAX_ARRIVAL) + 1;
-    process_addr->cpu_burst_time = (rand() % MAX_BURST) + 1;
-    process_addr->io_start_time = (rand() % (process_addr->cpu_burst_time)) + 1;
+    //[0: MAX_ARRIVAL]
+    process_addr->arrival_time = (rand() % (MAX_ARRIVAL + 1));
+    //[2: MAX_BURST]
+    /*
+        edge case: what if cpu burst:1, io_start:1 ?
+        we don't manage this condition
+    */
+    process_addr->cpu_burst_time = (rand() % (MAX_BURST - 1)) + 2;
+    //[1: cpu_burst - 1]
+    process_addr->io_start_time = (rand() % (process_addr->cpu_burst_time - 1)) + 1;
+    //[1: MAX_BURST]
     process_addr->io_burst_time = (rand() % MAX_BURST) + 1;
+    //[0: MAX_PRIORITY - 1]
     process_addr->priority = (rand() % MAX_PRIORITY);
     process_addr->remaining_cpu_time = process_addr->cpu_burst_time;
     process_addr->remaining_io_time = process_addr->io_burst_time;
-    process_addr->is_end = 0;
+    process_addr->io_timer = process_addr->io_start_time;
+    process_addr->is_end = FALSE;
+    process_addr->is_io = FALSE;
     return process_addr;
 }
 #endif

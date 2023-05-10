@@ -1,0 +1,5 @@
+{
+    "files.associations": {
+        "cpu_scheduler_module.h": "c"
+    }
+}
