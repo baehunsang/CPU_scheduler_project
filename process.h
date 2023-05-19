@@ -64,4 +64,13 @@ process_ptr process_init(process_ptr process_addr, int pid){
     process_addr->is_io = FALSE;
     return process_addr;
 }
+
+process_ptr re_process_init(process_ptr process_addr){
+    process_addr->remaining_cpu_time = process_addr->cpu_burst_time;
+    process_addr->remaining_io_time = process_addr->io_burst_time;
+    process_addr->io_timer = process_addr->io_start_time;
+    process_addr->is_end = FALSE;
+    process_addr->is_io = FALSE;
+    return process_addr;
+}
 #endif

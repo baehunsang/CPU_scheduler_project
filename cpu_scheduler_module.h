@@ -43,6 +43,21 @@ cpu_scheduler_ptr Create_process(cpu_scheduler_ptr cpu_scheduler_addr){
 }
 
 /*
+    reset dynamic field in processes
+*/
+void reset_process(cpu_scheduler_ptr cpu_scheduler_addr){
+    //process log should reset
+    destroy_log(cpu_scheduler_addr->log);
+    cpu_scheduler_addr->log = init_log_list(cpu_scheduler_addr->log);
+    
+    for(int i=0; i<PROC_NUM; i++){
+        cpu_scheduler_addr->trace_process[i] = re_process_init(cpu_scheduler_addr->trace_process[i]);
+        Insert(cpu_scheduler_addr->job_queue, cpu_scheduler_addr->trace_process[i]);
+    }
+    return cpu_scheduler_addr;
+}
+
+/*
     if all processes are end then return 1 else return 0
 */
 int is_terminal(cpu_scheduler_ptr cpu_scheduler_addr){
