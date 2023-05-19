@@ -6,7 +6,7 @@
 #include "./process.h"
 
 typedef struct process_log{
-    process_ptr process;
+    int process_id;
     int start_time;
     int turnaround_time;
 }process_log;
@@ -35,11 +35,11 @@ process_log_list_ptr init_log_list(process_log_list_ptr addr){
 /*
     if context switch accure, insert process into log list
 */
-int insert_log(process_log_list_ptr log_list, process_ptr process,int start_time, int turnaround_time){
+int insert_log(process_log_list_ptr log_list, int process_id,int start_time, int turnaround_time){
     if(log_list->size == 0){
         log_list->list = (process_log_ptr)malloc(sizeof(process_log));
     }
-    log_list->list[log_list->size].process = process;
+    log_list->list[log_list->size].process_id = process_id;
     log_list->list[log_list->size].turnaround_time = turnaround_time;
     log_list->list[log_list->size].start_time = start_time;
     log_list->size++;
@@ -57,7 +57,7 @@ int insert_log(process_log_list_ptr log_list, process_ptr process,int start_time
 */
 void print_log(process_log_list_ptr log_list){
     for(int i =0; i< log_list->size; i++){
-        printf("P%d scheduled at: %d , terminated at: %d\n", log_list->list[i].process->pid, log_list->list[i].start_time, log_list->list[i].turnaround_time);
+        printf("P%d scheduled at: %d , terminated at: %d\n", log_list->list[i].process_id, log_list->list[i].start_time, log_list->list[i].turnaround_time);
     }
 }
 
