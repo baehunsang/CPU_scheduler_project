@@ -175,11 +175,6 @@ void manage_io_ending_condition(cpu_scheduler_ptr cpu_scheduler_addr, int curren
         if(cpu_scheduler_addr->trace_process[i]->is_io && !cpu_scheduler_addr->trace_process[i]->remaining_io_time){
             cpu_scheduler_addr->trace_process[i]->is_io = FALSE;
             insert_to_ready_Q(cpu_scheduler_addr->ready_queue, cpu_scheduler_addr->trace_process[i]);
-            if(!cpu_scheduler_addr->core && cpu_scheduler_addr->ready_queue->size){
-                cpu_scheduler_addr->core = dequeue_from_ready_Q(cpu_scheduler_addr->ready_queue);
-                cpu_scheduler_addr->core->is_run = TRUE;
-                *start_time = current_time;
-            }
         }
     }
 }
@@ -188,7 +183,8 @@ void __schedule_fcfs(cpu_scheduler_ptr cpu_scheduler_addr){
     int current_time = 0;
     int start_time = 0;
     while(!is_terminal(cpu_scheduler_addr)){
-        
+        manage_io_ending_condition(cpu_scheduler_addr, current_time, &start_time);
+
         move_jq_to_readyQ(cpu_scheduler_addr, current_time);
         
         schedule_if_core_is_null(cpu_scheduler_addr, current_time, &start_time);
@@ -197,7 +193,7 @@ void __schedule_fcfs(cpu_scheduler_ptr cpu_scheduler_addr){
         
         manage_process_ending_condition(cpu_scheduler_addr, current_time, &start_time);
         
-        manage_io_ending_condition(cpu_scheduler_addr, current_time, &start_time);
+        
 
         for(int i=0; i< PROC_NUM; i++){
             if(cpu_scheduler_addr->trace_process[i]->is_io){
