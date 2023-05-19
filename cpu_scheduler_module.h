@@ -49,12 +49,23 @@ void reset_process(cpu_scheduler_ptr cpu_scheduler_addr){
     //process log should reset
     destroy_log(cpu_scheduler_addr->log);
     cpu_scheduler_addr->log = init_log_list(cpu_scheduler_addr->log);
-    
+
     for(int i=0; i<PROC_NUM; i++){
         cpu_scheduler_addr->trace_process[i] = re_process_init(cpu_scheduler_addr->trace_process[i]);
         Insert(cpu_scheduler_addr->job_queue, cpu_scheduler_addr->trace_process[i]);
     }
-    return cpu_scheduler_addr;
+    return;
+}
+
+void Evaluation(cpu_scheduler_ptr cpu_scheduler_addr){
+    double total_WT = 0;
+    double total_TT = 0;
+    for(int i=0; i<PROC_NUM; i++){
+        total_TT += cpu_scheduler_addr->trace_process[i]->TT;
+        total_WT += cpu_scheduler_addr->trace_process[i]->WT;
+    }
+    printf("AWT is : %f\n", total_WT / PROC_NUM);
+    printf("ATT is : %f\n", total_TT / PROC_NUM);
 }
 
 /*
@@ -121,15 +132,17 @@ void __schedule_fcfs(cpu_scheduler_ptr cpu_scheduler_addr){
         if core is NULL
             1.dequeue process from ready Q
             2.schedule core to process
+            3. is run field changed to TRUE
         */
         if(!cpu_scheduler_addr->core && cpu_scheduler_addr->ready_queue->size){
             cpu_scheduler_addr->core = dequeue_from_ready_Q(cpu_scheduler_addr->ready_queue);
+            cpu_scheduler_addr->core->is_run = TRUE;
             start_time = current_time;
         }
 
         /*
         if running process's io_timer == 0
-            1.change process's is_io field to TRUE
+            1.change process's is_io field to TRUE is_run field to FALSE
             2. insert process into log_list
             if ready Q's size is not 0
                 1.dequeue process from ready Q
@@ -139,10 +152,12 @@ void __schedule_fcfs(cpu_scheduler_ptr cpu_scheduler_addr){
         */
         if(cpu_scheduler_addr->core && cpu_scheduler_addr->core->io_timer == 0){
             cpu_scheduler_addr->core->is_io = TRUE;
+            cpu_scheduler_addr->core->is_run = FALSE;
             cpu_scheduler_addr->core->io_timer = MAX_BURST;
             insert_log(cpu_scheduler_addr->log, cpu_scheduler_addr->core, start_time, current_time);
             if(cpu_scheduler_addr->ready_queue->size){
                 cpu_scheduler_addr->core = dequeue_from_ready_Q(cpu_scheduler_addr->ready_queue);
+                cpu_scheduler_addr->core->is_run = TRUE;
                 start_time = current_time;
             }
             else{
@@ -157,8 +172,11 @@ void __schedule_fcfs(cpu_scheduler_ptr cpu_scheduler_addr){
         if(cpu_scheduler_addr->core && cpu_scheduler_addr->core->remaining_cpu_time == 0){
             insert_log(cpu_scheduler_addr->log, cpu_scheduler_addr->core, start_time, current_time);
             cpu_scheduler_addr->core->is_end = TRUE;
+            cpu_scheduler_addr->core->is_run = FALSE;
+            cpu_scheduler_addr->core->TT += current_time;
             if(cpu_scheduler_addr->ready_queue->size){
                 cpu_scheduler_addr->core = dequeue_from_ready_Q(cpu_scheduler_addr->ready_queue);
+                cpu_scheduler_addr->core->is_run = TRUE;
                 start_time = current_time;
             }
             else{
@@ -176,6 +194,7 @@ void __schedule_fcfs(cpu_scheduler_ptr cpu_scheduler_addr){
                 insert_to_ready_Q(cpu_scheduler_addr->ready_queue, cpu_scheduler_addr->trace_process[i]);
                 if(!cpu_scheduler_addr->core && cpu_scheduler_addr->ready_queue->size){
                     cpu_scheduler_addr->core = dequeue_from_ready_Q(cpu_scheduler_addr->ready_queue);
+                    cpu_scheduler_addr->core->is_run = TRUE;
                     start_time = current_time;
                 }
             }
@@ -184,6 +203,9 @@ void __schedule_fcfs(cpu_scheduler_ptr cpu_scheduler_addr){
         for(int i=0; i< PROC_NUM; i++){
             if(cpu_scheduler_addr->trace_process[i]->is_io){
                 cpu_scheduler_addr->trace_process[i]->remaining_io_time--;
+            }
+            if(!cpu_scheduler_addr->trace_process[i]->is_run && !cpu_scheduler_addr->trace_process[i]->is_end){
+                cpu_scheduler_addr->trace_process[i]->WT++;
             }
         }
         if(cpu_scheduler_addr->core){

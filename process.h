@@ -28,6 +28,9 @@ typedef struct process
     int io_timer;
     int is_io;
     int is_end;
+    int TT;
+    int WT;
+    int is_run;
     ////////////////////////////
 }process;
 
@@ -62,6 +65,9 @@ process_ptr process_init(process_ptr process_addr, int pid){
     process_addr->io_timer = process_addr->io_start_time;
     process_addr->is_end = FALSE;
     process_addr->is_io = FALSE;
+    process_addr->WT = -process_addr->arrival_time;
+    process_addr->TT = -process_addr->arrival_time;
+    process_addr->is_run = FALSE;
     return process_addr;
 }
 
@@ -71,6 +77,9 @@ process_ptr re_process_init(process_ptr process_addr){
     process_addr->io_timer = process_addr->io_start_time;
     process_addr->is_end = FALSE;
     process_addr->is_io = FALSE;
+    process_addr->WT = -process_addr->arrival_time;
+    process_addr->TT = -process_addr->arrival_time;
+    process_addr->is_run = FALSE;
     return process_addr;
 }
 #endif
