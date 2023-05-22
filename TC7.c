@@ -21,17 +21,23 @@ int main(int argc, char* argv){
         printf("process is_end: %d\n", cpu_scheduler->trace_process[i]->is_end);
         printf("\n");
     }
-    printf("\n\nFCFS\n");
-    Schedule(cpu_scheduler, "FCFS");
-    print_log(cpu_scheduler->log);
-    Evaluation(cpu_scheduler);
+    //printf("\n\nFCFS\n");
+    //Schedule(cpu_scheduler, "FCFS");
+    //print_log(cpu_scheduler->log);
+    //Evaluation(cpu_scheduler);
 
-    reset_process(cpu_scheduler);
+    //reset_process(cpu_scheduler);
+    //printf("\n\n");
+    //printf("Nonpreemptive SJF\n");
+    //Schedule(cpu_scheduler, "NP_SJF");
+    //print_log(cpu_scheduler->log);
+    //Evaluation(cpu_scheduler);
+    
+    //reset_process(cpu_scheduler);
     printf("\n\n");
-    printf("Nonpreemptive SJF\n");
-    Schedule(cpu_scheduler, "NP_SJF");
+    printf("Nonpreemptive Priority\n");
+    Schedule(cpu_scheduler, "NP_Priority");
     print_log(cpu_scheduler->log);
     Evaluation(cpu_scheduler);
     distroy_scheduler(cpu_scheduler);
-    
 }
