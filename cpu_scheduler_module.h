@@ -486,6 +486,59 @@ void __schedule_np_priority(cpu_scheduler_ptr cpu_scheduler_addr){
     }
 }
 
+void manage_sjf_preemptivity(cpu_scheduler_ptr cpu_scheduler_addr, int current_time, int* start_time){
+    //Preemptive condition
+    if(cpu_scheduler_addr->core && cpu_scheduler_addr->sjf_ready_q->size && cpu_scheduler_addr->core->remaining_cpu_time > sjf_HeapMax(cpu_scheduler_addr->sjf_ready_q)->remaining_cpu_time){
+        insert_log(cpu_scheduler_addr->log, cpu_scheduler_addr->core->pid, *start_time, current_time);
+        cpu_scheduler_addr->core->is_run = FALSE;
+        sjf_Insert(cpu_scheduler_addr->sjf_ready_q, cpu_scheduler_addr->core);
+        cpu_scheduler_addr->core = sjf_HeapExtractMax(cpu_scheduler_addr->sjf_ready_q);
+        cpu_scheduler_addr->core->is_run = TRUE;
+        *start_time = current_time;
+    }
+}
+
+void __schedule_p_sjf(cpu_scheduler_ptr cpu_scheduler_addr){
+    int current_time = 0;
+    int start_time = 0;
+    while(!is_terminal(cpu_scheduler_addr)){
+        np_sjf_manage_io_ending_condition(cpu_scheduler_addr, current_time, &start_time);
+
+        move_jq_to_sjf_readyQ(cpu_scheduler_addr, current_time);
+        /*
+        I/O takes precedence over preemption.
+        */
+        np_sjf_manage_io_occurence(cpu_scheduler_addr, current_time, &start_time);
+
+        manage_sjf_preemptivity(cpu_scheduler_addr, current_time, &start_time);
+        
+        np_sjf_schedule_if_core_is_null(cpu_scheduler_addr, current_time, &start_time);
+        
+        np_sjf_manage_process_ending_condition(cpu_scheduler_addr, current_time, &start_time);
+        
+        
+
+        for(int i=0; i< PROC_NUM; i++){
+            if(cpu_scheduler_addr->trace_process[i]->is_io){
+                cpu_scheduler_addr->trace_process[i]->remaining_io_time--;
+            }
+            if(!cpu_scheduler_addr->trace_process[i]->is_run && !cpu_scheduler_addr->trace_process[i]->is_end && current_time >= cpu_scheduler_addr->trace_process[i]->arrival_time){
+                cpu_scheduler_addr->trace_process[i]->WT++;
+            }
+        }
+        if(cpu_scheduler_addr->core){
+            cpu_scheduler_addr->core->remaining_cpu_time--;
+            /*
+                In this cpu scheduler I/O only accured once. 
+            */
+            if(cpu_scheduler_addr->core->remaining_io_time){
+                cpu_scheduler_addr->core->io_timer--;
+            }
+        }
+
+        current_time++;
+    }
+}
 
 void Schedule(cpu_scheduler_ptr cpu_scheduler_addr, char* msg){
     if(!strncmp(msg, "FCFS", 4)){
@@ -496,6 +549,9 @@ void Schedule(cpu_scheduler_ptr cpu_scheduler_addr, char* msg){
     }
     if(!strncmp(msg, "NP_Priority", 11)){
         __schedule_np_priority(cpu_scheduler_addr);
+    }
+    if(!strncmp(msg, "P_SJF", 5)){
+        __schedule_p_sjf(cpu_scheduler_addr);
     }
 
 }

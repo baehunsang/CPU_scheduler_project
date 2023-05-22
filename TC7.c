@@ -34,9 +34,16 @@ int main(int argc, char* argv){
     //Evaluation(cpu_scheduler);
     
     //reset_process(cpu_scheduler);
+    //printf("\n\n");
+    //printf("Nonpreemptive Priority\n");
+    //Schedule(cpu_scheduler, "NP_Priority");
+    //print_log(cpu_scheduler->log);
+    //Evaluation(cpu_scheduler);
+
+    //reset_process(cpu_scheduler);
     printf("\n\n");
-    printf("Nonpreemptive Priority\n");
-    Schedule(cpu_scheduler, "NP_Priority");
+    printf("Preemptive SJF\n");
+    Schedule(cpu_scheduler, "P_SJF");
     print_log(cpu_scheduler->log);
     Evaluation(cpu_scheduler);
     distroy_scheduler(cpu_scheduler);
