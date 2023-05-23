@@ -42,7 +42,7 @@ int priority_parent(int index) {
     1 if process1's priority is bigger than process2
     else 0
     high priority value has high priority
-    sort with arrival time
+    if priority is equal then large pid has precedence over small pid.
 */
 int priority_compare(process_ptr process1, process_ptr process2){
     if(process1->priority > process2->priority){
