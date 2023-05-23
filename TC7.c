@@ -21,10 +21,10 @@ int main(int argc, char* argv){
         printf("process is_end: %d\n", cpu_scheduler->trace_process[i]->is_end);
         printf("\n");
     }
-    //printf("\n\nFCFS\n");
-    //Schedule(cpu_scheduler, "FCFS");
-    //print_log(cpu_scheduler->log);
-    //Evaluation(cpu_scheduler);
+    printf("\n\nFCFS\n");
+    Schedule(cpu_scheduler, "FCFS");
+    print_log(cpu_scheduler->log);
+    Evaluation(cpu_scheduler);
 
     //reset_process(cpu_scheduler);
     //printf("\n\n");
@@ -41,16 +41,23 @@ int main(int argc, char* argv){
     //Evaluation(cpu_scheduler);
 
     //reset_process(cpu_scheduler);
-    printf("\n\n");
-    printf("Preemptive SJF\n");
-    Schedule(cpu_scheduler, "P_SJF");
-    print_log(cpu_scheduler->log);
-    Evaluation(cpu_scheduler);
+    //printf("\n\n");
+    //printf("Preemptive SJF\n");
+    //Schedule(cpu_scheduler, "P_SJF");
+    //print_log(cpu_scheduler->log);
+    //Evaluation(cpu_scheduler);
     
+    //reset_process(cpu_scheduler);
+    //printf("\n\n");
+    //printf("Preemptive Priority\n");
+    //Schedule(cpu_scheduler, "P_Priority");
+    //print_log(cpu_scheduler->log);
+    //Evaluation(cpu_scheduler);
+
     reset_process(cpu_scheduler);
     printf("\n\n");
-    printf("Preemptive Priority\n");
-    Schedule(cpu_scheduler, "P_Priority");
+    printf("Round Robin\n");
+    Schedule(cpu_scheduler, "RR");
     print_log(cpu_scheduler->log);
     Evaluation(cpu_scheduler);
     distroy_scheduler(cpu_scheduler);

@@ -9,6 +9,8 @@
 #include "./process_log.h"
 #include "./definition_priority_ready_Q.h"
 
+#define TIME_QTM 2
+
 typedef struct cpu_scheduler
 {
     process_ptr trace_process[PROC_NUM];
@@ -600,6 +602,106 @@ void __schedule_p_priority(cpu_scheduler_ptr cpu_scheduler_addr){
     }
 }
 
+void manage_timer_out_condition(cpu_scheduler_ptr cpu_scheduler_addr, int current_time, int* start_time, int* timer){
+    //Preemptive condition
+    if(cpu_scheduler_addr->core && cpu_scheduler_addr->ready_queue->size && *timer == TIME_QTM){
+        insert_log(cpu_scheduler_addr->log, cpu_scheduler_addr->core->pid, *start_time, current_time);
+        cpu_scheduler_addr->core->is_run = FALSE;
+        insert_to_ready_Q(cpu_scheduler_addr->ready_queue, cpu_scheduler_addr->core);
+        cpu_scheduler_addr->core = dequeue_from_ready_Q(cpu_scheduler_addr->ready_queue);
+        cpu_scheduler_addr->core->is_run = TRUE;
+        *start_time = current_time;
+        *timer = 0;
+    }
+}
+
+void manage_rr_process_ending_condition(cpu_scheduler_ptr cpu_scheduler_addr, int current_time, int* start_time, int* timer){
+    if(cpu_scheduler_addr->core && cpu_scheduler_addr->core->remaining_cpu_time == 0){
+        insert_log(cpu_scheduler_addr->log, cpu_scheduler_addr->core->pid, *start_time, current_time);
+        cpu_scheduler_addr->core->is_end = TRUE;
+        cpu_scheduler_addr->core->is_run = FALSE;
+        cpu_scheduler_addr->core->TT += current_time;
+        if(cpu_scheduler_addr->ready_queue->size){
+            cpu_scheduler_addr->core = dequeue_from_ready_Q(cpu_scheduler_addr->ready_queue);
+            cpu_scheduler_addr->core->is_run = TRUE;
+            *start_time = current_time;
+            *timer = 0;
+        }
+        else{
+            cpu_scheduler_addr->core = NULL;
+        }
+        }
+}
+
+void manage_rr_io_occurence(cpu_scheduler_ptr cpu_scheduler_addr, int current_time,int* start_time, int* timer){
+    if(cpu_scheduler_addr->core && cpu_scheduler_addr->core->io_timer == 0){
+        cpu_scheduler_addr->core->is_io = TRUE;
+        cpu_scheduler_addr->core->is_run = FALSE;
+        cpu_scheduler_addr->core->io_timer = MAX_BURST;
+        insert_log(cpu_scheduler_addr->log, cpu_scheduler_addr->core->pid, *start_time, current_time);
+        if(cpu_scheduler_addr->ready_queue->size){
+            cpu_scheduler_addr->core = dequeue_from_ready_Q(cpu_scheduler_addr->ready_queue);
+            cpu_scheduler_addr->core->is_run = TRUE;
+            *start_time = current_time;
+            *timer = 0;
+        }
+        else{
+            cpu_scheduler_addr->core = NULL;
+        }
+    }
+}
+
+void rr_schedule_if_core_is_null(cpu_scheduler_ptr cpu_scheduler_addr, int current_time, int* start_time, int* timer){
+    if(!cpu_scheduler_addr->core && cpu_scheduler_addr->ready_queue->size){
+        cpu_scheduler_addr->core = dequeue_from_ready_Q(cpu_scheduler_addr->ready_queue);
+        cpu_scheduler_addr->core->is_run = TRUE;
+        *start_time = current_time;
+        *timer = 0;
+    }
+}
+
+void __schedule_rr(cpu_scheduler_ptr cpu_scheduler_addr){
+    int current_time = 0;
+    int start_time = 0;
+    int timer = 0;
+    while(!is_terminal(cpu_scheduler_addr)){
+        manage_io_ending_condition(cpu_scheduler_addr, current_time, &start_time);
+
+        move_jq_to_readyQ(cpu_scheduler_addr, current_time);
+        
+        manage_rr_process_ending_condition(cpu_scheduler_addr, current_time, &start_time, &timer);
+
+        manage_rr_io_occurence(cpu_scheduler_addr, current_time, &start_time, &timer);
+
+        manage_timer_out_condition(cpu_scheduler_addr, current_time, &start_time, &timer);
+
+        rr_schedule_if_core_is_null(cpu_scheduler_addr, current_time, &start_time, &timer);
+        
+
+        for(int i=0; i< PROC_NUM; i++){
+            if(cpu_scheduler_addr->trace_process[i]->is_io){
+                cpu_scheduler_addr->trace_process[i]->remaining_io_time--;
+            }
+            if(!cpu_scheduler_addr->trace_process[i]->is_run && !cpu_scheduler_addr->trace_process[i]->is_end && current_time >= cpu_scheduler_addr->trace_process[i]->arrival_time){
+                cpu_scheduler_addr->trace_process[i]->WT++;
+            }
+        }
+        if(cpu_scheduler_addr->core){
+            cpu_scheduler_addr->core->remaining_cpu_time--;
+            /*
+                In this cpu scheduler I/O only accured once. 
+            */
+            if(cpu_scheduler_addr->core->remaining_io_time){
+                cpu_scheduler_addr->core->io_timer--;
+            }
+        }
+
+        current_time++;
+        timer++;
+    }
+
+}
+
 
 void Schedule(cpu_scheduler_ptr cpu_scheduler_addr, char* msg){
     if(!strncmp(msg, "FCFS", 4)){
@@ -616,6 +718,9 @@ void Schedule(cpu_scheduler_ptr cpu_scheduler_addr, char* msg){
     }
     if(!strncmp(msg, "P_Priority", 10)){
         __schedule_p_priority(cpu_scheduler_addr);
+    }
+    if(!strncmp(msg, "RR", 2)){
+        __schedule_rr(cpu_scheduler_addr);
     }
 
 }
