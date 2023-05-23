@@ -506,15 +506,18 @@ void __schedule_p_sjf(cpu_scheduler_ptr cpu_scheduler_addr){
 
         move_jq_to_sjf_readyQ(cpu_scheduler_addr, current_time);
         /*
-        I/O takes precedence over preemption.
+        I/O, process ending takes precedence over preemption.
         */
+
+        np_sjf_manage_process_ending_condition(cpu_scheduler_addr, current_time, &start_time);
+
         np_sjf_manage_io_occurence(cpu_scheduler_addr, current_time, &start_time);
 
         manage_sjf_preemptivity(cpu_scheduler_addr, current_time, &start_time);
         
         np_sjf_schedule_if_core_is_null(cpu_scheduler_addr, current_time, &start_time);
         
-        np_sjf_manage_process_ending_condition(cpu_scheduler_addr, current_time, &start_time);
+        
         
         
 
@@ -561,15 +564,17 @@ void __schedule_p_priority(cpu_scheduler_ptr cpu_scheduler_addr){
 
         move_jq_to_priority_readyQ(cpu_scheduler_addr, current_time);
         /*
-        I/O takes precedence over preemption.
+        I/O, process ending takes precedence over preemption.
         */
+        np_priority_manage_process_ending_condition(cpu_scheduler_addr, current_time, &start_time);
+
         np_priority_manage_io_occurence(cpu_scheduler_addr, current_time, &start_time);
 
         manage_priority_preemptivity(cpu_scheduler_addr, current_time, &start_time);
         
         np_priority_schedule_if_core_is_null(cpu_scheduler_addr, current_time, &start_time);
         
-        np_priority_manage_process_ending_condition(cpu_scheduler_addr, current_time, &start_time);
+        
         
         
 
