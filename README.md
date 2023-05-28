@@ -1,5 +1,14 @@
 # CPU_scheduler_project
 ---
+## Usage
+---
+```
+$ git clone https://github.com/baehunsang/CPU_scheduler_project.git ./cpu_scheduler
+$ cd ./cpu_scheduler
+$ gcc ./TC7.c -o ./TC7
+$ ./TC7 >> result.txt
+```
+
 
 ## Sample output
 ```
